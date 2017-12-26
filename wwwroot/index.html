@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        function set_event(li, filename) {
+            var extension = filename.substr(filename.lastIndexOf('.') + 1);
+            li.appendChild(document.createTextNode(filename));
+            li.addEventListener("click", function () {
+                var vs = document.getElementById("video_source");
+                vs.setAttribute("src", "/api/video/reproducir/"+filename);
+                vs.setAttribute("type", "video/"+extension);
+                var vp= document.getElementById("video_player");
+                vp.load();
+                vp.play();
+            });
+
+
+        }
+
+        function listar_videos() {
+            console.log("pagina cargada");
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    //document.getElementById("demo").innerHTML = this.responseText;                   
+                    var files = JSON.parse(this.response).files;
+                    console.log(files);
+                    var list = document.getElementById("video_list");
+                    for (var file in files) 
+                    {
+                        var filename = files[file].name;
+                        var li = document.createElement("li");
+                        set_event(li, filename);
+                        list.appendChild(li);
+                    }
+                }
+            };
+            xhttp.open("GET", "/api/video/listar", true);
+            xhttp.send();
+        }
+    </script>
+</head>
+
+<body onload="listar_videos()">
+
+    <ul id="video_list"></ul>
+    <video id="video_player" width="480" height="320" controls="controls">
+        <source id="video_source" src="" type="">
+    </video>
+
+</body>
+
+</html>
